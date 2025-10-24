@@ -36,9 +36,19 @@
 2. 跟踪 URL 并提取主要页面内容
 3. 删除导航、广告和其他非内容元素
 
+## 运行模式
+
+此 MCP 服务器支持两种运行模式：
+
+### 1. Stdio 模式（默认）
+通过标准输入/输出（stdio）与 MCP 客户端通信，适用于 Claude Desktop、LM Studio 等桌面应用。
+
+### 2. HTTP 服务器模式（新增）
+通过 HTTP/SSE 提供 MCP 服务，适用于 Dify、Web 应用等需要网络访问的场景。
+
 ## 兼容性
 
-此 MCP 服务器已使用 **LM Studio** 和 **LibreChat** 进行开发和测试。尚未在其他 MCP 客户端上进行测试。
+此 MCP 服务器已使用 **LM Studio**、**LibreChat** 和 **Dify** 进行开发和测试。尚未在其他 MCP 客户端上进行测试。
 
 ### 模型兼容性
 **重要提示：** 优先使用指定用于工具使用的较新模型。
@@ -250,12 +260,196 @@ npm run format # 运行 Prettier
 }
 ```
 
-## 独立使用
+## HTTP 服务器模式使用（供 Dify 调用）
 
-您也可以直接运行服务器：
+### 安装和启动
+
+1. **安装依赖并构建**
 ```bash
-# 如果从源代码运行
+npm install
+npx playwright install chromium firefox
+npm run build
+```
+
+2. **配置环境变量**
+
+创建 `.env` 文件或直接在命令行中设置：
+
+```bash
+# 必需配置
+export API_KEY=your-secret-api-key-here
+
+# 可选配置
+export HTTP_PORT=3000
+export ENABLE_CORS=true
+export MAX_CONTENT_LENGTH=10000
+export DEFAULT_TIMEOUT=6000
+```
+
+**环境变量说明：**
+- `API_KEY` - **必需**，用于 API 认证的密钥
+- `HTTP_PORT` - HTTP 服务器端口（默认：3000）
+- `ENABLE_CORS` - 是否启用 CORS（默认：true）
+- `MAX_CONTENT_LENGTH` - 最大内容长度（默认：500000）
+- `DEFAULT_TIMEOUT` - 请求超时时间毫秒（默认：6000）
+
+3. **启动 HTTP 服务器**
+
+```bash
+# 方式 1: 使用环境变量
+API_KEY=your-secret-key pnpm start:http
+
+# 方式 2: 从 .env 文件加载（需要安装 dotenv-cli）
+pnpm add -g dotenv-cli
+dotenv -e .env pnpm start:http
+
+# 开发模式（热重载）
+API_KEY=your-secret-key pnpm dev:http
+```
+
+启动后，你会看到：
+```
+🚀 Web Search MCP HTTP Server 已启动
+📡 监听端口: 3000
+🔒 API Key 认证: 已启用
+🌐 CORS: 已启用
+```
+
+### 可用端点
+
+#### 1. 健康检查
+```bash
+GET http://localhost:3000/health
+```
+
+响应：
+```json
+{
+  "status": "ok",
+  "service": "web-search-mcp-http",
+  "version": "0.3.1",
+  "timestamp": "2025-10-24T12:00:00.000Z"
+}
+```
+
+#### 2. MCP over SSE 连接
+```bash
+GET http://localhost:3000/sse
+Headers:
+  X-API-Key: your-secret-key
+```
+
+此端点建立 SSE（Server-Sent Events）连接，用于 MCP 协议通信。
+
+#### 3. SSE 消息端点
+```bash
+POST http://localhost:3000/message
+Headers:
+  X-API-Key: your-secret-key
+  Content-Type: application/json
+```
+
+用于通过 SSE 发送 MCP 消息。
+
+### Dify 集成配置
+
+在 Dify 中配置 MCP 服务器：
+
+1. **打开 Dify 设置**
+2. **添加 MCP 服务器**
+3. **配置连接信息：**
+
+```yaml
+名称: Web Search MCP
+类型: HTTP (SSE)
+URL: http://your-server-ip:3000/sse
+认证方式: API Key
+Headers:
+  X-API-Key: your-secret-api-key-here
+```
+
+4. **测试连接**
+   - 点击"测试连接"按钮
+   - 应该看到"连接成功"消息
+   - 可用工具列表会显示三个工具：
+     - `full-web-search` - 完整搜索+内容提取
+     - `get-web-search-summaries` - 轻量级搜索摘要
+     - `get-single-web-page-content` - 单页内容提取
+
+5. **在 Dify 工作流中使用**
+   - 创建或编辑工作流
+   - 添加"工具"节点
+   - 选择"Web Search MCP"服务
+   - 选择要使用的工具（例如 `full-web-search`）
+   - 配置参数（query, limit 等）
+
+### 安全建议
+
+⚠️ **重要安全提示：**
+
+1. **使用强 API Key**
+   ```bash
+   # 生成安全的随机 API Key
+   openssl rand -base64 32
+   ```
+
+2. **使用 HTTPS**（生产环境）
+   - 使用反向代理（Nginx、Caddy）添加 SSL/TLS
+   - 示例 Nginx 配置：
+   ```nginx
+   server {
+       listen 443 ssl;
+       server_name your-domain.com;
+       
+       ssl_certificate /path/to/cert.pem;
+       ssl_certificate_key /path/to/key.pem;
+       
+       location / {
+           proxy_pass http://localhost:3000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+   }
+   ```
+
+3. **IP 白名单**（可选）
+   - 配置防火墙只允许特定 IP 访问
+   - 或在 Nginx 中配置 IP 限制
+
+4. **不要在公共代码库中提交 API Key**
+   - 将 `.env` 添加到 `.gitignore`
+   - 使用环境变量或密钥管理服务
+
+### 测试 HTTP 服务器
+
+使用 curl 测试服务器：
+
+```bash
+# 1. 测试健康检查（无需认证）
+curl http://localhost:3000/health
+
+# 2. 测试 SSE 连接（需要认证）
+curl -H "X-API-Key: your-secret-key" \
+     -N \
+     http://localhost:3000/sse
+
+# 3. 测试根路径（查看服务信息）
+curl http://localhost:3000/
+```
+
+## Stdio 模式使用（默认）
+
+您可以直接运行 stdio 模式服务器，用于 Claude Desktop、LM Studio 等：
+
+```bash
+# 启动 stdio 服务器
 npm start
+
+# 或开发模式
+npm run dev
 ```
 
 ## 文档

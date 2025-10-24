@@ -9,7 +9,7 @@ import { EnhancedContentExtractor } from './enhanced-content-extractor.js';
 import { WebSearchToolInput, WebSearchToolOutput, SearchResult } from './types.js';
 import { isPdfUrl } from './utils.js';
 
-class WebSearchMCPServer {
+export class WebSearchMCPServer {
   private server: McpServer;
   private searchEngine: SearchEngine;
   private contentExtractor: EnhancedContentExtractor;
@@ -25,6 +25,11 @@ class WebSearchMCPServer {
 
     this.setupTools();
     this.setupGracefulShutdown();
+  }
+
+  // 获取 MCP 服务器实例，供 HTTP 服务器使用
+  getServer(): McpServer {
+    return this.server;
   }
 
   private setupTools(): void {
@@ -522,13 +527,16 @@ class WebSearchMCPServer {
   }
 }
 
-// Start the server
-const server = new WebSearchMCPServer();
-server.run().catch((error: unknown) => {
-  if (error instanceof Error) {
-    console.error('Server error:', error.message);
-  } else {
-    console.error('Server error:', error);
-  }
-  process.exit(1);
-});
+// 只有在直接运行此文件时才启动 stdio 服务器（向后兼容）
+// 当作为模块导入时（例如被 http-server.ts 导入），不会自动启动
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = new WebSearchMCPServer();
+  server.run().catch((error: unknown) => {
+    if (error instanceof Error) {
+      console.error('Server error:', error.message);
+    } else {
+      console.error('Server error:', error);
+    }
+    process.exit(1);
+  });
+}
