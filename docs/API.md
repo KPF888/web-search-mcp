@@ -1,42 +1,42 @@
-# Web Search MCP Server - API Documentation
+# 网页搜索 MCP 服务器 - API 文档
 
-## Overview
+## 概述
 
-The Web Search MCP Server provides three tools for web searching and content extraction:
+网页搜索 MCP 服务器提供三个用于网页搜索和内容提取的工具：
 
-1. **`full-web-search`** - Comprehensive web search with full content extraction (primary tool)
-2. **`get-web-search-summaries`** - Lightweight search returning only result snippets  
-3. **`get-single-web-page-content`** - Extract content from a single web page URL
+1. **`full-web-search`** - 带有完整内容提取的全面网页搜索（主要工具）
+2. **`get-web-search-summaries`** - 仅返回结果摘要的轻量级搜索
+3. **`get-single-web-page-content`** - 从单个网页 URL 提取内容
 
-## Tool: full-web-search
+## 工具：full-web-search
 
-### Description
-Search the web and fetch complete page content from top results. This is the most comprehensive web search tool. It searches the web and then follows the resulting links to extract their full page content, providing the most detailed and complete information available.
+### 描述
+搜索网页并从顶部结果获取完整的页面内容。这是最全面的网页搜索工具。它搜索网页，然后跟踪生成的链接以提取完整的页面内容，提供最详细和完整的可用信息。
 
-### Input Schema
+### 输入架构
 ```json
 {
   "type": "object",
   "properties": {
     "query": {
       "type": "string",
-      "description": "Search query to execute (recommended for comprehensive research)"
+      "description": "要执行的搜索查询（推荐用于全面研究）"
     },
     "limit": {
       "type": "number",
-      "description": "Number of results to return with full content (1-10, default 5)",
+      "description": "返回包含完整内容的结果数量（1-10，默认 5）",
       "minimum": 1,
       "maximum": 10,
       "default": 5
     },
     "includeContent": {
       "type": "boolean",
-      "description": "Whether to fetch full page content (default: true)",
+      "description": "是否获取完整页面内容（默认：true）",
       "default": true
     },
     "maxContentLength": {
       "type": "number",
-      "description": "Maximum characters per result content (0 = no limit). Usually not needed - content length is automatically optimized.",
+      "description": "每个结果内容的最大字符数（0 = 无限制）。通常不需要 - 内容长度会自动优化。",
       "optional": true
     }
   },
@@ -44,23 +44,23 @@ Search the web and fetch complete page content from top results. This is the mos
 }
 ```
 
-### Output Schema
-Returns formatted text content containing search results with full page content:
+### 输出架构
+返回包含搜索结果及完整页面内容的格式化文本内容：
 
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "Search completed for \"[query]\" with [N] results:\n\n**1. [Title]**\nURL: [url]\nDescription: [description]\n\n**Full Content:**\n[extracted content]\n\n---\n\n..."
+      "text": "搜索"[query]"完成，共 [N] 个结果：\n\n**1. [Title]**\nURL: [url]\n描述：[description]\n\n**完整内容：**\n[extracted content]\n\n---\n\n..."
     }
   ]
 }
 ```
 
-### Usage Examples
+### 使用示例
 
-#### Basic Search
+#### 基本搜索
 ```json
 {
   "name": "full-web-search",
@@ -70,7 +70,7 @@ Returns formatted text content containing search results with full page content:
 }
 ```
 
-#### Search with Custom Parameters
+#### 带有自定义参数的搜索
 ```json
 {
   "name": "full-web-search",
@@ -83,23 +83,23 @@ Returns formatted text content containing search results with full page content:
 }
 ```
 
-## Tool: get-web-search-summaries
+## 工具：get-web-search-summaries
 
-### Description
-Search the web and return only the search result snippets/descriptions without following links to extract full page content. This is a lightweight alternative to full-web-search for when you only need brief search results.
+### 描述
+搜索网页并仅返回搜索结果摘要/描述，而不跟踪链接提取完整页面内容。当您只需要简要搜索结果时，这是 full-web-search 的轻量级替代方案。
 
-### Input Schema
+### 输入架构
 ```json
 {
   "type": "object",
   "properties": {
     "query": {
       "type": "string",
-      "description": "Search query to execute (lightweight alternative)"
+      "description": "要执行的搜索查询（轻量级替代方案）"
     },
     "limit": {
       "type": "number",
-      "description": "Number of search results to return (1-10, default 5)",
+      "description": "返回的搜索结果数量（1-10，默认 5）",
       "minimum": 1,
       "maximum": 10,
       "default": 5
@@ -109,23 +109,23 @@ Search the web and return only the search result snippets/descriptions without f
 }
 ```
 
-### Output Schema
-Returns formatted text content containing search result summaries:
+### 输出架构
+返回包含搜索结果摘要的格式化文本内容：
 
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "Search summaries for \"[query]\" with [N] results:\n\n**1. [Title]**\nURL: [url]\nDescription: [description]\n\n---\n\n..."
+      "text": ""[query]"的搜索摘要，共 [N] 个结果：\n\n**1. [Title]**\nURL: [url]\n描述：[description]\n\n---\n\n..."
     }
   ]
 }
 ```
 
-### Usage Examples
+### 使用示例
 
-#### Basic Summary Search
+#### 基本摘要搜索
 ```json
 {
   "name": "get-web-search-summaries",
@@ -135,7 +135,7 @@ Returns formatted text content containing search result summaries:
 }
 ```
 
-#### Summary Search with Custom Limit
+#### 带有自定义限制的摘要搜索
 ```json
 {
   "name": "get-web-search-summaries",
@@ -146,12 +146,12 @@ Returns formatted text content containing search result summaries:
 }
 ```
 
-## Tool: get-single-web-page-content
+## 工具：get-single-web-page-content
 
-### Description
-Extract and return the full content from a single web page URL. This tool follows a provided URL and extracts the main page content. Useful for getting detailed content from a specific webpage without performing a search.
+### 描述
+从单个网页 URL 提取并返回完整内容。此工具跟踪提供的 URL 并提取主要页面内容。在无需执行搜索的情况下从特定网页获取详细内容时非常有用。
 
-### Input Schema
+### 输入架构
 ```json
 {
   "type": "object",
@@ -159,11 +159,11 @@ Extract and return the full content from a single web page URL. This tool follow
     "url": {
       "type": "string",
       "format": "uri",
-      "description": "The URL of the web page to extract content from"
+      "description": "要提取内容的网页 URL"
     },
     "maxContentLength": {
       "type": "number",
-      "description": "Maximum characters for the extracted content (0 = no limit, undefined = use default limit). Usually not needed - content length is automatically optimized.",
+      "description": "提取内容的最大字符数（0 = 无限制，undefined = 使用默认限制）。通常不需要 - 内容长度会自动优化。",
       "optional": true
     }
   },
@@ -171,23 +171,23 @@ Extract and return the full content from a single web page URL. This tool follow
 }
 ```
 
-### Output Schema
-Returns formatted text content from the specified web page:
+### 输出架构
+返回指定网页的格式化文本内容：
 
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "**Page Content from: [url]**\n\n**Title:** [title]\n**Word Count:** [count]\n**Content Length:** [length] characters\n\n**Content:**\n[extracted content]"
+      "text": "**页面内容来自：[url]**\n\n**标题：** [title]\n**字数：** [count]\n**内容长度：** [length] 个字符\n\n**内容：**\n[extracted content]"
     }
   ]
 }
 ```
 
-### Usage Examples
+### 使用示例
 
-#### Basic Page Content Extraction
+#### 基本页面内容提取
 ```json
 {
   "name": "get-single-web-page-content",
@@ -197,7 +197,7 @@ Returns formatted text content from the specified web page:
 }
 ```
 
-#### Page Content with Length Limit
+#### 带有长度限制的页面内容
 ```json
 {
   "name": "get-single-web-page-content",
@@ -208,97 +208,97 @@ Returns formatted text content from the specified web page:
 }
 ```
 
-## Response Examples
+## 响应示例
 
-### full-web-search Response
+### full-web-search 响应
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "Search completed for \"TypeScript MCP server\" with 2 results:\n\n**1. Getting Started with TypeScript**\nURL: https://www.typescriptlang.org/docs/\nDescription: TypeScript is a strongly typed programming language that builds on JavaScript...\n\n**Full Content:**\nTypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. This tutorial will help you get started with TypeScript...\n\n---\n\n**2. Model Context Protocol Documentation**\nURL: https://modelcontextprotocol.io/\nDescription: The Model Context Protocol (MCP) is a protocol for AI assistants to connect to external data sources...\n\n**Full Content:**\nThe Model Context Protocol (MCP) enables AI assistants to connect to external data sources and tools...\n\n---\n"
+      "text": "搜索"TypeScript MCP server"完成，共 2 个结果：\n\n**1. TypeScript 入门**\nURL: https://www.typescriptlang.org/docs/\n描述：TypeScript 是一种基于 JavaScript 构建的强类型编程语言...\n\n**完整内容：**\nTypeScript 是一种基于 JavaScript 构建的强类型编程语言，可在任何规模下为您提供更好的工具。本教程将帮助您开始使用 TypeScript...\n\n---\n\n**2. 模型上下文协议文档**\nURL: https://modelcontextprotocol.io/\n描述：模型上下文协议（MCP）是一种让 AI 助手连接到外部数据源的协议...\n\n**完整内容：**\n模型上下文协议（MCP）使 AI 助手能够连接到外部数据源和工具...\n\n---\n"
     }
   ]
 }
 ```
 
-### get-web-search-summaries Response
+### get-web-search-summaries 响应
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "Search summaries for \"machine learning tutorials\" with 3 results:\n\n**1. Machine Learning Crash Course**\nURL: https://developers.google.com/machine-learning/crash-course\nDescription: Google's fast-paced, practical introduction to machine learning...\n\n---\n\n**2. Introduction to Machine Learning**\nURL: https://www.coursera.org/learn/machine-learning\nDescription: Learn about the most effective machine learning techniques...\n\n---\n"
+      "text": ""machine learning tutorials"的搜索摘要，共 3 个结果：\n\n**1. 机器学习速成课程**\nURL: https://developers.google.com/machine-learning/crash-course\n描述：Google 的快节奏、实用的机器学习入门...\n\n---\n\n**2. 机器学习简介**\nURL: https://www.coursera.org/learn/machine-learning\n描述：学习最有效的机器学习技术...\n\n---\n"
     }
   ]
 }
 ```
 
-### get-single-web-page-content Response
+### get-single-web-page-content 响应
 ```json
 {
   "content": [
     {
       "type": "text",
-      "text": "**Page Content from: https://example.com/article**\n\n**Title:** example.com/article\n**Word Count:** 1250\n**Content Length:** 8500 characters\n\n**Content:**\nThis is the extracted content from the web page...\n[full page content continues]"
+      "text": "**页面内容来自：https://example.com/article**\n\n**标题：** example.com/article\n**字数：** 1250\n**内容长度：** 8500 个字符\n\n**内容：**\n这是从网页提取的内容...\n[完整页面内容继续]"
     }
   ]
 }
 ```
 
-## Error Handling
+## 错误处理
 
-### Common Error Types
+### 常见错误类型
 
-1. **Network Errors**
-   - Timeout errors
-   - Connection refused
-   - DNS resolution failures
+1. **网络错误**
+   - 超时错误
+   - 连接被拒绝
+   - DNS 解析失败
 
-2. **Search Errors**
-   - Invalid search queries
-   - Rate limiting by Google
-   - CAPTCHA challenges
+2. **搜索错误**
+   - 无效的搜索查询
+   - Google 速率限制
+   - CAPTCHA 挑战
 
-3. **Content Extraction Errors**
-   - Page access denied (403, 404)
-   - Content encoding issues
-   - Malformed HTML
+3. **内容提取错误**
+   - 页面访问被拒绝（403、404）
+   - 内容编码问题
+   - 格式错误的 HTML
 
-### Error Response Format
+### 错误响应格式
 ```json
 {
   "error": {
-    "message": "Error description",
+    "message": "错误描述",
     "type": "error_type",
-    "details": "Additional error information"
+    "details": "附加错误信息"
   }
 }
 ```
 
-## Rate Limiting
+## 速率限制
 
-The server implements rate limiting to respect Google's terms of service:
+服务器实施速率限制以遵守 Google 的服务条款：
 
-- Maximum 10 requests per minute
-- Maximum 5 concurrent content extractions
-- Automatic retry with exponential backoff
+- 每分钟最多 10 个请求
+- 最多 5 个并发内容提取
+- 自动重试，采用指数退避
 
-## Performance Considerations
+## 性能考虑
 
-### Response Times
-- Search execution: 1-5 seconds
-- Content extraction: 2-10 seconds per URL
-- Total response time: 3-15 seconds (depending on result count)
+### 响应时间
+- 搜索执行：1-5 秒
+- 内容提取：每个 URL 2-10 秒
+- 总响应时间：3-15 秒（取决于结果数量）
 
-### Content Limits
-- Maximum content length: 50KB per page
-- Maximum concurrent requests: 5
-- Request timeout: 10 seconds
+### 内容限制
+- 最大内容长度：每页 50KB
+- 最大并发请求：5
+- 请求超时：10 秒
 
-## Integration Examples
+## 集成示例
 
-### LM Studio Configuration
+### LM Studio 配置
 ```json
 {
   "mcpServers": {
@@ -314,7 +314,7 @@ The server implements rate limiting to respect Google's terms of service:
 }
 ```
 
-### Claude Desktop Configuration
+### Claude Desktop 配置
 ```json
 {
   "mcpServers": {
@@ -326,48 +326,48 @@ The server implements rate limiting to respect Google's terms of service:
 }
 ```
 
-## Best Practices
+## 最佳实践
 
-### Query Optimization
-- Use specific, descriptive queries
-- Include relevant keywords
-- Avoid overly broad searches
+### 查询优化
+- 使用具体、描述性的查询
+- 包含相关关键词
+- 避免过于宽泛的搜索
 
-### Result Handling
-- Check for content extraction errors
-- Handle partial failures gracefully
-- Consider result relevance
+### 结果处理
+- 检查内容提取错误
+- 优雅地处理部分失败
+- 考虑结果相关性
 
-### Error Recovery
-- Implement retry logic for transient errors
-- Provide fallback content when extraction fails
-- Log errors for debugging
+### 错误恢复
+- 为临时错误实施重试逻辑
+- 当提取失败时提供备用内容
+- 记录错误以进行调试
 
-## Troubleshooting
+## 故障排除
 
-### Common Issues
+### 常见问题
 
-1. **No Results Returned**
-   - Check query validity
-   - Verify network connectivity
-   - Check for rate limiting
+1. **未返回结果**
+   - 检查查询有效性
+   - 验证网络连接
+   - 检查速率限制
 
-2. **Content Extraction Failures**
-   - Verify URL accessibility
-   - Check content encoding
-   - Review error messages
+2. **内容提取失败**
+   - 验证 URL 可访问性
+   - 检查内容编码
+   - 查看错误消息
 
-3. **Performance Issues**
-   - Reduce concurrent requests
-   - Increase timeout values
-   - Check system resources
+3. **性能问题**
+   - 减少并发请求
+   - 增加超时值
+   - 检查系统资源
 
-### Debug Mode
-Enable debug logging by setting the environment variable:
+### 调试模式
+通过设置环境变量启用调试日志记录：
 ```bash
 export DEBUG=web-search-mcp:*
 ```
 
-## Support
+## 支持
 
-For issues and questions, please log an issue on GitHub.
+如有问题和疑问，请在 GitHub 上提交 issue。

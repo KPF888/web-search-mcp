@@ -1,76 +1,76 @@
-# Web Search MCP Server for use with Local LLMs
+# 用于本地 LLM 的网页搜索 MCP 服务器
 
-A TypeScript MCP (Model Context Protocol) server that provides comprehensive web search capabilities using direct connections (no API keys required) with multiple tools for different use cases.
+一个 TypeScript MCP（模型上下文协议）服务器，提供全面的网页搜索功能，使用直接连接（无需 API 密钥），并为不同使用场景提供多种工具。
 
-## Features
+## 功能特性
 
-- **Multi-Engine Web Search**: Prioritises Bing > Brave > DuckDuckGo for optimal reliability and performance
-- **Full Page Content Extraction**: Fetches and extracts complete page content from search results
-- **Multiple Search Tools**: Three specialised tools for different use cases
-- **Smart Request Strategy**: Switches between playwright browesrs and fast axios requests to ensure results are returned
-- **Concurrent Processing**: Extracts content from multiple pages simultaneously
+- **多引擎网页搜索**：优先级为 Bing > Brave > DuckDuckGo，以获得最佳可靠性和性能
+- **完整页面内容提取**：从搜索结果中获取并提取完整的页面内容
+- **多种搜索工具**：三个针对不同使用场景的专用工具
+- **智能请求策略**：在 playwright 浏览器和快速 axios 请求之间切换以确保返回结果
+- **并发处理**：同时从多个页面提取内容
 
-## How It Works
+## 工作原理
 
-The server provides three specialised tools for different web search needs:
+该服务器为不同的网页搜索需求提供三个专用工具：
 
-### 1. `full-web-search` (Main Tool)
-When a comprehensive search is requested, the server uses an **optimised search strategy**:
-1. **Browser-based Bing Search** - Primary method using dedicated Chromium instance
-2. **Browser-based Brave Search** - Secondary option using dedicated Firefox instance
-3. **Axios DuckDuckGo Search** - Final fallback using traditional HTTP
-4. **Dedicated browser isolation**: Each search engine gets its own browser instance with automatic cleanup
-5. **Content extraction**: Tries axios first, then falls back to browser with human behavior simulation
-6. **Concurrent processing**: Extracts content from multiple pages simultaneously with timeout protection
-7. **HTTP/2 error recovery**: Automatically falls back to HTTP/1.1 when protocol errors occur
+### 1. `full-web-search`（主要工具）
+当请求进行全面搜索时，服务器使用**优化的搜索策略**：
+1. **基于浏览器的 Bing 搜索** - 使用专用 Chromium 实例的主要方法
+2. **基于浏览器的 Brave 搜索** - 使用专用 Firefox 实例的次要选项
+3. **Axios DuckDuckGo 搜索** - 使用传统 HTTP 的最终备用方案
+4. **专用浏览器隔离**：每个搜索引擎都有自己的浏览器实例，并自动清理
+5. **内容提取**：首先尝试 axios，然后回退到具有人类行为模拟的浏览器
+6. **并发处理**：同时从多个页面提取内容，并带有超时保护
+7. **HTTP/2 错误恢复**：当协议错误发生时自动回退到 HTTP/1.1
 
-### 2. `get-web-search-summaries` (Lightweight Alternative)
-For quick search results without full content extraction:
-1. Performs the same optimised multi-engine search as `full-web-search`
-2. Returns only the search result snippets/descriptions
-3. Does not follow links to extract full page content
+### 2. `get-web-search-summaries`（轻量级替代方案）
+用于快速搜索结果而不提取完整内容：
+1. 执行与 `full-web-search` 相同的优化多引擎搜索
+2. 仅返回搜索结果摘要/描述
+3. 不跟踪链接以提取完整页面内容
 
-### 3. `get-single-web-page-content` (Utility Tool)
-For extracting content from a specific webpage:
-1. Takes a single URL as input
-2. Follows the URL and extracts the main page content
-3. Removes navigation, ads, and other non-content elements
+### 3. `get-single-web-page-content`（实用工具）
+用于从特定网页提取内容：
+1. 接受单个 URL 作为输入
+2. 跟踪 URL 并提取主要页面内容
+3. 删除导航、广告和其他非内容元素
 
-## Compatibility
+## 兼容性
 
-This MCP server has been developed and tested with **LM Studio** and **LibreChat**. It has not been tested with other MCP clients.
+此 MCP 服务器已使用 **LM Studio** 和 **LibreChat** 进行开发和测试。尚未在其他 MCP 客户端上进行测试。
 
-### Model Compatibility
-**Important:** Prioritise using more recent models designated for tool use. 
+### 模型兼容性
+**重要提示：** 优先使用指定用于工具使用的较新模型。
 
-Older models (even those with tool use specified) may not work or may work erratically. This seems to be the case with Llama and Deepseek. Qwen3 and Gemma 3 currently have the best restults.
+较旧的模型（即使那些指定了工具使用的模型）可能无法工作或工作不稳定。Llama 和 Deepseek 似乎就是这种情况。Qwen3 和 Gemma 3 目前有最好的结果。
 
-- ✅ Works well with: **Qwen3**
-- ✅ Works well with: **Gemma 3**
-- ✅ Works with: **Llama 3.2**
-- ✅ Works with: Recent **Llama 3.1** (e.g 3.1 swallow-8B)
-- ✅ Works with: Recent **Deepseek R1** (e.g 0528 works)
-- ⚠️ May have issues with: Some versions of **Llama** and **Deepseek R1**
-- ❌ May not work with: Older versions of **Llama** and **Deepseek R1**
+- ✅ 效果很好：**Qwen3**
+- ✅ 效果很好：**Gemma 3**
+- ✅ 可用：**Llama 3.2**
+- ✅ 可用：最新的 **Llama 3.1**（例如 3.1 swallow-8B）
+- ✅ 可用：最新的 **Deepseek R1**（例如 0528 版本可用）
+- ⚠️ 可能有问题：某些版本的 **Llama** 和 **Deepseek R1**
+- ❌ 可能无法工作：较旧版本的 **Llama** 和 **Deepseek R1**
 
-## Installation (Recommended)
+## 安装（推荐）
 
-**Requirements:**
-- Node.js 18.0.0 or higher
-- npm 8.0.0 or higher
+**要求：**
+- Node.js 18.0.0 或更高版本
+- npm 8.0.0 或更高版本
 
-1. Download the latest release zip file from the [Releases page](https://github.com/mrkrsl/web-search-mcp/releases)
-2. Extract the zip file to a location on your system (e.g., `~/mcp-servers/web-search-mcp/`)
-3. **Open a terminal in the extracted folder and run:**
+1. 从 [发布页面](https://github.com/mrkrsl/web-search-mcp/releases) 下载最新的发布 zip 文件
+2. 将 zip 文件解压到系统上的某个位置（例如 `~/mcp-servers/web-search-mcp/`）
+3. **在解压的文件夹中打开终端并运行：**
    ```bash
    npm install
    npx playwright install
    npm run build
    ```
-   This will create a `node_modules` folder with all required dependencies, install Playwright browsers, and build the project.
+   这将创建一个包含所有必需依赖项的 `node_modules` 文件夹，安装 Playwright 浏览器，并构建项目。
 
-   **Note:** You must run `npm install` in the root of the extracted folder (not in `dist/`).
-4. Configure your `mcp.json` to point to the extracted `dist/index.js` file:
+   **注意：** 您必须在解压文件夹的根目录中运行 `npm install`（不是在 `dist/` 中）。
+4. 配置您的 `mcp.json` 以指向解压的 `dist/index.js` 文件：
 
 ```json
 {
@@ -82,13 +82,13 @@ Older models (even those with tool use specified) may not work or may work errat
   }
 }
 ```
-**Example paths:**
-- macOS/Linux: `~/mcp-servers/web-search-mcp/dist/index.js`
-- Windows: `C:\\mcp-servers\\web-search-mcp\\dist\\index.js`
+**路径示例：**
+- macOS/Linux：`~/mcp-servers/web-search-mcp/dist/index.js`
+- Windows：`C:\\mcp-servers\\web-search-mcp\\dist\\index.js`
 
-In LibreChat, you can include the MCP server in the librechat.yaml. If you are running LibreChat in Docker, you must first mount your local directory in docker-compose.override.yml.
+在 LibreChat 中，您可以在 librechat.yaml 中包含 MCP 服务器。如果您在 Docker 中运行 LibreChat，必须首先在 docker-compose.override.yml 中挂载您的本地目录。
 
-in `docker-compose.override.yml`:
+在 `docker-compose.override.yml` 中：
 ```yaml
 services:
   api:
@@ -97,7 +97,7 @@ services:
       source: /path/to/your/mcp/directory
       target: /app/mcp
 ```
-in `librechat.yaml`:
+在 `librechat.yaml` 中：
 ```yaml
 mcpServers:
   web-search:
@@ -108,11 +108,11 @@ mcpServers:
     serverInstructions: true
 ```
 
-**Troubleshooting:**
-- If `npm install` fails, try updating Node.js to version 18+ and npm to version 8+
-- If `npm run build` fails, ensure you have the latest Node.js version installed
-- For older Node.js versions, you may need to use an older release of this project
-- **Content Length Issues:** If you experience odd behavior due to content length limits, try setting `"MAX_CONTENT_LENGTH": "10000"`, or another value, in your `mcp.json` environment variables:
+**故障排除：**
+- 如果 `npm install` 失败，请尝试将 Node.js 更新到 18+ 版本，npm 更新到 8+ 版本
+- 如果 `npm run build` 失败，请确保您安装了最新的 Node.js 版本
+- 对于较旧的 Node.js 版本，您可能需要使用此项目的较旧版本
+- **内容长度问题：** 如果您由于内容长度限制而遇到奇怪的行为，请尝试在 `mcp.json` 环境变量中设置 `"MAX_CONTENT_LENGTH": "10000"` 或其他值：
 
 ```json
 {
@@ -131,48 +131,48 @@ mcpServers:
 }
 ```
 
-## Environment Variables
+## 环境变量
 
-The server supports several environment variables for configuration:
+服务器支持多个用于配置的环境变量：
 
-- **`MAX_CONTENT_LENGTH`**: Maximum content length in characters (default: 500000)
-- **`DEFAULT_TIMEOUT`**: Default timeout for requests in milliseconds (default: 6000)
-- **`MAX_BROWSERS`**: Maximum number of browser instances to maintain (default: 3)
-- **`BROWSER_TYPES`**: Comma-separated list of browser types to use (default: 'chromium,firefox', options: chromium, firefox, webkit)
-- **`BROWSER_FALLBACK_THRESHOLD`**: Number of axios failures before using browser fallback (default: 3)
+- **`MAX_CONTENT_LENGTH`**：最大内容长度（字符数）（默认：500000）
+- **`DEFAULT_TIMEOUT`**：请求的默认超时时间（毫秒）（默认：6000）
+- **`MAX_BROWSERS`**：维护的最大浏览器实例数（默认：3）
+- **`BROWSER_TYPES`**：要使用的浏览器类型的逗号分隔列表（默认：'chromium,firefox'，选项：chromium、firefox、webkit）
+- **`BROWSER_FALLBACK_THRESHOLD`**：使用浏览器备用方案之前的 axios 失败次数（默认：3）
 
-### Search Quality and Engine Selection
+### 搜索质量和引擎选择
 
-- **`ENABLE_RELEVANCE_CHECKING`**: Enable/disable search result quality validation (default: true)
-- **`RELEVANCE_THRESHOLD`**: Minimum quality score for search results (0.0-1.0, default: 0.3)
-- **`FORCE_MULTI_ENGINE_SEARCH`**: Try all search engines and return best results (default: false)
-- **`DEBUG_BROWSER_LIFECYCLE`**: Enable detailed browser lifecycle logging for debugging (default: false)
+- **`ENABLE_RELEVANCE_CHECKING`**：启用/禁用搜索结果质量验证（默认：true）
+- **`RELEVANCE_THRESHOLD`**：搜索结果的最低质量分数（0.0-1.0，默认：0.3）
+- **`FORCE_MULTI_ENGINE_SEARCH`**：尝试所有搜索引擎并返回最佳结果（默认：false）
+- **`DEBUG_BROWSER_LIFECYCLE`**：启用详细的浏览器生命周期日志记录以进行调试（默认：false）
 
-## Troubleshooting
+## 故障排除
 
-### Slow Response Times
-- **Optimised timeouts**: Default timeout reduced to 6 seconds with concurrent processing for faster results
-- **Concurrent extraction**: Content is now extracted from multiple pages simultaneously
-- **Reduce timeouts further**: Set `DEFAULT_TIMEOUT=4000` for even faster responses (may reduce success rate)
-- **Use fewer browsers**: Set `MAX_BROWSERS=1` to reduce memory usage
+### 响应时间慢
+- **优化的超时时间**：默认超时时间减少到 6 秒，并发处理以获得更快的结果
+- **并发提取**：现在同时从多个页面提取内容
+- **进一步减少超时时间**：设置 `DEFAULT_TIMEOUT=4000` 以获得更快的响应（可能会降低成功率）
+- **使用更少的浏览器**：设置 `MAX_BROWSERS=1` 以减少内存使用
 
-### Search Failures
-- **Check browser installation**: Run `npx playwright install` to ensure browsers are available
-- **Try headless mode**: Ensure `BROWSER_HEADLESS=true` (default) for server environments
-- **Network restrictions**: Some networks block browser automation - try different network or VPN
-- **HTTP/2 issues**: The server automatically handles HTTP/2 protocol errors with fallback to HTTP/1.1
+### 搜索失败
+- **检查浏览器安装**：运行 `npx playwright install` 以确保浏览器可用
+- **尝试无头模式**：确保 `BROWSER_HEADLESS=true`（默认）用于服务器环境
+- **网络限制**：某些网络阻止浏览器自动化 - 尝试不同的网络或 VPN
+- **HTTP/2 问题**：服务器自动处理 HTTP/2 协议错误，并回退到 HTTP/1.1
 
-### Search Quality Issues
-- **Enable quality checking**: Set `ENABLE_RELEVANCE_CHECKING=true` (enabled by default)
-- **Adjust quality threshold**: Set `RELEVANCE_THRESHOLD=0.5` for stricter quality requirements
-- **Force multi-engine search**: Set `FORCE_MULTI_ENGINE_SEARCH=true` to try all engines and return the best results
+### 搜索质量问题
+- **启用质量检查**：设置 `ENABLE_RELEVANCE_CHECKING=true`（默认启用）
+- **调整质量阈值**：设置 `RELEVANCE_THRESHOLD=0.5` 以获得更严格的质量要求
+- **强制多引擎搜索**：设置 `FORCE_MULTI_ENGINE_SEARCH=true` 以尝试所有引擎并返回最佳结果
 
-### Memory Usage
-- **Automatic cleanup**: Browsers are automatically cleaned up after each operation to prevent memory leaks
-- **Limit browsers**: Reduce `MAX_BROWSERS` (default: 3)
-- **EventEmitter warnings**: Fixed - browsers are properly closed to prevent listener accumulation
+### 内存使用
+- **自动清理**：每次操作后自动清理浏览器以防止内存泄漏
+- **限制浏览器**：减少 `MAX_BROWSERS`（默认：3）
+- **EventEmitter 警告**：已修复 - 浏览器正确关闭以防止监听器积累
 
-## For Development
+## 开发环境
 ```bash
 git clone https://github.com/mrkrsl/web-search-mcp.git
 cd web-search-mcp
@@ -181,28 +181,28 @@ npx playwright install
 npm run build
 ```
 
-## Development
+## 开发
 
 ```bash
-npm run dev    # Development with hot reload
-npm run build  # Build TypeScript to JavaScript
-npm run lint   # Run ESLint
-npm run format # Run Prettier
+npm run dev    # 热重载开发模式
+npm run build  # 将 TypeScript 构建为 JavaScript
+npm run lint   # 运行 ESLint
+npm run format # 运行 Prettier
 ```
 
-## MCP Tools
+## MCP 工具
 
-This server provides three specialised tools for different web search needs:
+此服务器为不同的网页搜索需求提供三个专用工具：
 
-### 1. `full-web-search` (Main Tool)
-The most comprehensive web search tool that:
-1. Takes a search query and optional number of results (1-10, default 5)
-2. Performs a web search (tries Bing, then Brave, then DuckDuckGo if needed)
-3. Fetches full page content from each result URL with concurrent processing
-4. Returns structured data with search results and extracted content
-5. **Enhanced reliability**: HTTP/2 error recovery, reduced timeouts, and better error handling
+### 1. `full-web-search`（主要工具）
+最全面的网页搜索工具：
+1. 接受搜索查询和可选的结果数量（1-10，默认 5）
+2. 执行网页搜索（如果需要，尝试 Bing，然后 Brave，然后 DuckDuckGo）
+3. 通过并发处理从每个结果 URL 获取完整页面内容
+4. 返回包含搜索结果和提取内容的结构化数据
+5. **增强的可靠性**：HTTP/2 错误恢复、减少的超时时间和更好的错误处理
 
-**Example Usage:**
+**使用示例：**
 ```json
 {
   "name": "full-web-search",
@@ -214,14 +214,14 @@ The most comprehensive web search tool that:
 }
 ```
 
-### 2. `get-web-search-summaries` (Lightweight Alternative)
-A lightweight alternative for quick search results:
-1. Takes a search query and optional number of results (1-10, default 5)
-2. Performs the same optimised multi-engine search as `full-web-search`
-3. Returns only search result snippets/descriptions (no content extraction)
-4. Faster and more efficient for quick research
+### 2. `get-web-search-summaries`（轻量级替代方案）
+快速搜索结果的轻量级替代方案：
+1. 接受搜索查询和可选的结果数量（1-10，默认 5）
+2. 执行与 `full-web-search` 相同的优化多引擎搜索
+3. 仅返回搜索结果摘要/描述（不提取内容）
+4. 更快、更高效，适用于快速研究
 
-**Example Usage:**
+**使用示例：**
 ```json
 {
   "name": "get-web-search-summaries",
@@ -232,14 +232,14 @@ A lightweight alternative for quick search results:
 }
 ```
 
-### 3. `get-single-web-page-content` (Utility Tool)
-A utility tool for extracting content from a specific webpage:
-1. Takes a single URL as input
-2. Follows the URL and extracts the main page content
-3. Removes navigation, ads, and other non-content elements
-4. Useful for getting detailed content from a known webpage
+### 3. `get-single-web-page-content`（实用工具）
+从特定网页提取内容的实用工具：
+1. 接受单个 URL 作为输入
+2. 跟踪 URL 并提取主要页面内容
+3. 删除导航、广告和其他非内容元素
+4. 用于从已知网页获取详细内容
 
-**Example Usage:**
+**使用示例：**
 ```json
 {
   "name": "get-single-web-page-content",
@@ -250,25 +250,25 @@ A utility tool for extracting content from a specific webpage:
 }
 ```
 
-## Standalone Usage
+## 独立使用
 
-You can also run the server directly:
+您也可以直接运行服务器：
 ```bash
-# If running from source
+# 如果从源代码运行
 npm start
 ```
 
-## Documentation
+## 文档
 
-See [API.md](./docs/API.md) for complete technical details.
+有关完整的技术细节，请参阅 [API.md](./docs/API.md)。
 
-## License
+## 许可证
 
-MIT License - see [LICENSE](./LICENSE) for details.
+MIT 许可证 - 有关详细信息，请参阅 [LICENSE](./LICENSE)。
 
-## Feedback
+## 反馈
 
-This is an open source project and we welcome feedback! If you encounter any issues or have suggestions for improvements, please:
+这是一个开源项目，我们欢迎反馈！如果您遇到任何问题或有改进建议，请：
 
-- Open an issue on GitHub
-- Submit a pull request
+- 在 GitHub 上提交 issue
+- 提交 pull request
